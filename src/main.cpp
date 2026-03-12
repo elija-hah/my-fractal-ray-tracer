@@ -6,7 +6,7 @@ int main() {
     Vec3 origin = Vec3(0., 0., 0.);
     Vec3 target = Vec3(10., 0., 3.);
 
-    Camera cam = Camera(origin, target, up, 160, 2.);
+    Camera cam = Camera(origin, target, 160, 2., up);
 
     std::cout << cam.up << std::endl;
     std::cout << cam.forward << std::endl;
