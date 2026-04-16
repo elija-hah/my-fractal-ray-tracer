@@ -3,6 +3,6 @@
 
 #include "struct.h"
 
-Color getFractalColor(int x, int y, int z, const VoxelWorld& world);
+Color getFractalColor(float x, float y, float z, const int SIZE, const float scale);
 
 #endif

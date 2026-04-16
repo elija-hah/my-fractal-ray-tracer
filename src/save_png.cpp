@@ -3,7 +3,7 @@
 
 #include "../include/save_png.h"
 
-void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world){
+void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world, std::string filename){
     Vec3 forward = (camTarget - camPos).normalize();
     Vec3 right = forward.cross(up).normalize();
     Vec3 camUp = right.cross(forward).normalize();
@@ -31,11 +31,7 @@ void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Ve
             int idx = (py * WIDTH + px) * 3;
 
             if (traceDDA(world, ray, 1000.0f, hitPos, voxelType, normal)) {
-                int hx = static_cast<int>(std::floor(hitPos.x));
-                int hy = static_cast<int>(std::floor(hitPos.y));
-                int hz = static_cast<int>(std::floor(hitPos.z));
-
-                Color baseColor = getFractalColor(hx, hy, hz, world);
+                Color baseColor = getFractalColor(hitPos.x, hitPos.y, hitPos.z, std::max(world.sizeX, std::max(world.sizeY, world.sizeZ)), 3.0f);
                 Color finalColor = applyLighting(baseColor, normal);
 
                 image[idx + 0] = finalColor.r;
@@ -55,7 +51,7 @@ void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Ve
 		    image[idx + 2] = b;
 	    }
         }
-        if (py % 64 == 0) {
+        if (py % 100 == 0) {
             std::cout << "  Row " << py << "/" << HEIGHT << "\n";
         }
     }
@@ -64,8 +60,8 @@ void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Ve
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
     std::cout << "Rendered in " << duration.count() << " seconds\n";
 
-    std::cout << "Saving mandelbulb.png...\n";
-    if (stbi_write_png("mandelbulb.png", WIDTH, HEIGHT, 3, image.data(), WIDTH * 3)) {
+    std::cout << "Saving...\n";
+    if (stbi_write_png(filename.c_str(), WIDTH, HEIGHT, 3, image.data(), WIDTH * 3)) {
         std::cout << "Image saved successfully!\n";
     } else {
         std::cerr << "Failed to save image!\n";

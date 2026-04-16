@@ -6,8 +6,8 @@
 #include "include/save_png.h"
 
 int main() {
-    const int WIDTH = 1920;
-    const int HEIGHT = 1920;
+    const int WIDTH = 2000;
+    const int HEIGHT = 2000;
     const int VOX_SIZE = 256;
     
     VoxelWorld world(VOX_SIZE, VOX_SIZE, VOX_SIZE);
@@ -21,7 +21,7 @@ int main() {
     Vec3 up(0.0f, 1.0f, 0.0f);
     float fov = 60.0f * PI_CONST / 180.0f;
     
-    save_png(WIDTH, HEIGHT, camPos, camTarget, up, fov, world);
+    save_png(WIDTH, HEIGHT, camPos, camTarget, up, fov, world, "mandelbulb.png");
     
     return 0;
 }

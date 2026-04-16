@@ -3,11 +3,12 @@
 
 #include <iostream>
 #include <chrono>
+#include <string.h>
 #include "struct.h"
 #include "frac_color.h"
 #include "dda.h"
 #include "light.h"
 
-void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world);
+void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world, std::string filename);
 
 #endif
