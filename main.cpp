@@ -1,11 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <array>
-#include <algorithm>
-#include <cmath>
-#include <fstream>
-#include <chrono>
-
 #include "include/struct.h"
 #include "include/mandelbulb.h"
 #include "include/frac_color.h"
@@ -16,7 +8,7 @@
 int main() {
     const int WIDTH = 1920;
     const int HEIGHT = 1920;
-    const int VOX_SIZE = 128;
+    const int VOX_SIZE = 256;
     
     VoxelWorld world(VOX_SIZE, VOX_SIZE, VOX_SIZE);
     
@@ -27,7 +19,7 @@ int main() {
     Vec3 camPos(VOX_SIZE * 1.1f, VOX_SIZE * 1.0f, VOX_SIZE * 1.1f);
     Vec3 camTarget(VOX_SIZE/2.0f, VOX_SIZE/2.0f, VOX_SIZE/2.0f);
     Vec3 up(0.0f, 1.0f, 0.0f);
-    float fov = 60.0f * 3.14159f / 180.0f;
+    float fov = 60.0f * PI_CONST / 180.0f;
     
     save_png(WIDTH, HEIGHT, camPos, camTarget, up, fov, world);
     

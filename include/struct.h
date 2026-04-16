@@ -2,6 +2,9 @@
 #define STRUCTS_H
 
 #include <vector>
+#include <cmath>
+
+const float PI_CONST = 3.14159f;
 
 struct VoxelWorld {
     std::vector<unsigned char> voxels;

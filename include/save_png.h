@@ -2,7 +2,6 @@
 #define SAVE_PNG_H
 
 #include <iostream>
-#include <cmath>
 #include <chrono>
 #include "struct.h"
 #include "frac_color.h"

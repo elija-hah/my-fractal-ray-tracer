@@ -2,7 +2,6 @@
 #define MANDELBULB_H
 
 #include <iostream>
-#include <cmath>
 #include <chrono>
 #include "struct.h"
 
