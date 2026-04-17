@@ -5,8 +5,6 @@
 #include "include/select_menu.h"
 
 int main() {
-    const int WIDTH = 2000;
-    const int HEIGHT = 2000;
     const int VOX_SIZE = 256;
     VoxelWorld world(VOX_SIZE, VOX_SIZE, VOX_SIZE);
     
@@ -16,7 +14,5 @@ int main() {
     	case MANDELBULB: generateMandelbulb(world); renderFractalMenu(world, "mandelbulb.png"); break;
     	case MANDELBOX:  generateMandelbox(world); renderFractalMenu(world, "mandelbox.png"); break;
     }
-    
-    endwin();
     return 0;
 }

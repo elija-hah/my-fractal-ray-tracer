@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include "struct.h"
+#include "progress_ui.h"
 
 float mandelboxDE(const Vec3& pos, int maxIter);
 void generateMandelbox(VoxelWorld& world);

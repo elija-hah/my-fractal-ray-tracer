@@ -8,7 +8,8 @@
 #include "frac_color.h"
 #include "dda.h"
 #include "light.h"
+#include "progress_ui.h"
 
-void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world, std::string filename);
+bool save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Vec3 up, float fov, VoxelWorld world, std::string filename);
 
 #endif

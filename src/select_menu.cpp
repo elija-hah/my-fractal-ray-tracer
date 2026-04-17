@@ -56,6 +56,7 @@ FractalType selectFractalMenu() {
 					return selected;
 				case 'q':
 					endwin();
+					exit(0);
 				case KEY_RESIZE:
 					getmaxyx(stdscr, height, width); break;
 				default:

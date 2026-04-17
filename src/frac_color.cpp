@@ -1,6 +1,5 @@
 #include "../include/frac_color.h"
 
-// ==================== Цвет фрактала с 8 угловыми цветами ====================
 Color getFractalColor(float x, float y, float z, const int SIZE, const float scale) {
     const float offset = SIZE / 2.0f;
 
@@ -9,15 +8,26 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
     float fy = (y - offset) / (SIZE / scale);
     float fz = (z - offset) / (SIZE / scale);
 
-    // Нормализуем координаты в диапазон [0, 1]
-    float nx = (fx + 2.0f) / 4.0f;
-    float ny = (fy + 2.0f) / 4.0f;
-    float nz = (fz + 2.0f) / 4.0f;
+    // ВАЖНО: используем более широкий диапазон для нормализации
+    // Mandelbulb: примерно [-1.5, 1.5] при scale=2.5
+    // Mandelbox: примерно [-2.5, 2.5] при scale=3.5
+    // Нормализуем с запасом в диапазон [0, 1]
+    float range = 3.0f;  // Увеличиваем диапазон
+    
+    float nx = (fx + range) / (2.0f * range);
+    float ny = (fy + range) / (2.0f * range);
+    float nz = (fz + range) / (2.0f * range);
 
-    // Ограничиваем
+    // Жёсткое ограничение
     nx = std::max(0.0f, std::min(1.0f, nx));
     ny = std::max(0.0f, std::min(1.0f, ny));
     nz = std::max(0.0f, std::min(1.0f, nz));
+
+    // Отладочный вывод (можно закомментировать)
+    // static int count = 0;
+    // if (count++ % 1000 == 0) {
+    //     printf("nx=%.2f ny=%.2f nz=%.2f\n", nx, ny, nz);
+    // }
 
     Color colors[2][2][2] = {
         // z = 0 (ближний слой)
@@ -32,13 +42,11 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
         }
     };
 
-    // Smoothstep для всех трёх осей (плавная интерполяция)
+    // Smoothstep для более плавных переходов
     float sx = nx * nx * (3.0f - 2.0f * nx);
     float sy = ny * ny * (3.0f - 2.0f * ny);
     float sz = nz * nz * (3.0f - 2.0f * nz);
 
-    // Трилинейная интерполяция
-    // Сначала интерполируем по X (4 пары)
     auto lerp = [](unsigned char a, unsigned char b, float t) {
         return static_cast<unsigned char>(a + (b - a) * t);
     };
@@ -63,7 +71,7 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
     unsigned char g11 = lerp(colors[1][1][0].g, colors[1][1][1].g, sx);
     unsigned char b11 = lerp(colors[1][1][0].b, colors[1][1][1].b, sx);
 
-    // Интерполяция по Y (объединяем пары по Y)
+    // Интерполяция по Y
     unsigned char r0 = lerp(r00, r01, sy);
     unsigned char g0 = lerp(g00, g01, sy);
     unsigned char b0 = lerp(b00, b01, sy);
@@ -72,7 +80,7 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
     unsigned char g1 = lerp(g10, g11, sy);
     unsigned char b1 = lerp(b10, b11, sy);
     
-    // Интерполяция по Z (финальная)
+    // Интерполяция по Z
     unsigned char r = lerp(r0, r1, sz);
     unsigned char g = lerp(g0, g1, sz);
     unsigned char b = lerp(b0, b1, sz);

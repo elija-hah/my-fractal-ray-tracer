@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include <iostream>
+#include <cstdlib>
 
 enum FractalType {
 	MANDELBULB,

@@ -1,10 +1,9 @@
 #include "../include/mandelbox.h"
 
-// ==================== Mandelbox Distance Estimation ====================
 float mandelboxDE(const Vec3& pos, int maxIter) {
     Vec3 z = pos;
-    float dr = 1.0f;  // Для корректной оценки расстояния
-    const float scale = 2.0f;
+    float dr = 1.0f;
+    const float scale = 2.5f;        // Увеличил для более интересной формы
     const float fixedRadius = 1.0f;
     const float minRadius = 0.5f;
     
@@ -20,14 +19,15 @@ float mandelboxDE(const Vec3& pos, int maxIter) {
         else if (z.z < -1.0f) z.z = -2.0f - z.z;
         
         // Ball Fold
-        float r = std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z);
-        if (r < minRadius) {
-            z.x *= fixedRadius / minRadius;
-            z.y *= fixedRadius / minRadius;
-            z.z *= fixedRadius / minRadius;
-            dr *= fixedRadius / minRadius;
-        } else if (r < fixedRadius) {
-            float factor = fixedRadius / r;
+        float r2 = z.x*z.x + z.y*z.y + z.z*z.z;
+        if (r2 < minRadius * minRadius) {
+            float factor = fixedRadius / minRadius;
+            z.x *= factor;
+            z.y *= factor;
+            z.z *= factor;
+            dr *= factor;
+        } else if (r2 < fixedRadius * fixedRadius) {
+            float factor = fixedRadius / std::sqrt(r2);
             z.x *= factor;
             z.y *= factor;
             z.z *= factor;
@@ -41,51 +41,49 @@ float mandelboxDE(const Vec3& pos, int maxIter) {
         
         dr = dr * std::abs(scale) + 1.0f;
         
-        // Ранний выход, если точка ушла слишком далеко
-        if (std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z) > 10.0f) break;
+        // Ранний выход
+        if (z.x*z.x + z.y*z.y + z.z*z.z > 100.0f) break;
     }
     
     float r = std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z);
     return r / std::abs(dr);
 }
 
-// ==================== Генерация Mandelbox ====================
 void generateMandelbox(VoxelWorld& world) {
-    std::cout << "Generating Mandelbox fractal...\n";
-    auto start = std::chrono::high_resolution_clock::now();
+    ProgressUI ui("Generating Mandelbox Fractal");
     
     const int SIZE = world.sizeX;
-    const float scale = 2.0f;  // Масштаб для Mandelbox
+    const float scale = 3.5f;  // Масштаб для маппинга
     const float offset = SIZE / 2.0f;
+    const int maxIter = 12;
     
     int filled = 0;
     
     for (int x = 0; x < SIZE; x++) {
+        if (x % 8 == 0) {
+            char status[50];
+            snprintf(status, sizeof(status), "Slice %d/%d, filled: %d", x, SIZE, filled);
+            ui.update(status, x, SIZE);
+        }
+        
         for (int y = 0; y < SIZE; y++) {
             for (int z = 0; z < SIZE; z++) {
-                // Маппинг воксельных координат в пространство фрактала [-2.0, 2.0]
+                // Маппинг в пространство [-2.5, 2.5]
                 float fx = (x - offset) / (SIZE / (scale * 2.0f));
                 float fy = (y - offset) / (SIZE / (scale * 2.0f));
                 float fz = (z - offset) / (SIZE / (scale * 2.0f));
                 
-                float de = mandelboxDE(Vec3(fx, fy, fz), 8);
+                float de = mandelboxDE(Vec3(fx, fy, fz), maxIter);
                 
-                if (de < 0.01f) {
-                    world.at(x, y, z) = 2;  // Тип 2 для Mandelbox
+                if (de < 0.015f) {
+                    world.at(x, y, z) = 2;
                     filled++;
                 }
             }
         }
-        if (x % 32 == 0) {
-            auto now = std::chrono::high_resolution_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-            std::cout << "  Slice " << x << "/" << SIZE 
-                      << " (filled: " << filled << ", time: " << elapsed.count() << "s)\n";
-        }
     }
     
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout << "Generated " << filled << " voxels in " << duration.count() << " seconds\n";
+    char message[50];
+    snprintf(message, sizeof(message), "Done! Generated %d voxels", filled);
+    ui.finish(message);
 }
-
