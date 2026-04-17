@@ -1,63 +1,91 @@
 #include "../include/mandelbox.h"
 
-// ==================== Mandelbox ====================
-float mandelboxDE(const Vec3& pos, int maxIter = 8) {
+// ==================== Mandelbox Distance Estimation ====================
+float mandelboxDE(const Vec3& pos, int maxIter) {
     Vec3 z = pos;
-    const float scale = 2.0f;  // Классический Mandelbox
-
+    float dr = 1.0f;  // Для корректной оценки расстояния
+    const float scale = 2.0f;
+    const float fixedRadius = 1.0f;
+    const float minRadius = 0.5f;
+    
     for (int i = 0; i < maxIter; i++) {
-        r = z.length();
-        if (r > 2.0f) break;
-
-        // Box Fold: Отражение координат, вышедших за пределы [-1, 1].
-        if (z.x > 1) z.x = 2 - z.x;
-        else if (z.x < -1) z.x = -2 - z.x;
-        if (z.y > 1) z.y = 2 - z.y;
-        else if (z.y < -1) z.y = -2 - z.y;
-        if (z.z > 1) z.z = 2 - z.z;
-        else if (z.z < -1) z.z = -2 - z.z;
-
-        // Ball Fold: Сжатие/растяжение пространства
-        float r = length(z);
-        if (r < 0.5) z *= 4;
-        else if (r < 1) z /= (r * r);
-
-        z = z*scale + pos;
+        // Box Fold
+        if (z.x > 1.0f) z.x = 2.0f - z.x;
+        else if (z.x < -1.0f) z.x = -2.0f - z.x;
+        
+        if (z.y > 1.0f) z.y = 2.0f - z.y;
+        else if (z.y < -1.0f) z.y = -2.0f - z.y;
+        
+        if (z.z > 1.0f) z.z = 2.0f - z.z;
+        else if (z.z < -1.0f) z.z = -2.0f - z.z;
+        
+        // Ball Fold
+        float r = std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z);
+        if (r < minRadius) {
+            z.x *= fixedRadius / minRadius;
+            z.y *= fixedRadius / minRadius;
+            z.z *= fixedRadius / minRadius;
+            dr *= fixedRadius / minRadius;
+        } else if (r < fixedRadius) {
+            float factor = fixedRadius / r;
+            z.x *= factor;
+            z.y *= factor;
+            z.z *= factor;
+            dr *= factor;
+        }
+        
+        // Масштабирование и добавление константы
+        z.x = z.x * scale + pos.x;
+        z.y = z.y * scale + pos.y;
+        z.z = z.z * scale + pos.z;
+        
+        dr = dr * std::abs(scale) + 1.0f;
+        
+        // Ранний выход, если точка ушла слишком далеко
+        if (std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z) > 10.0f) break;
     }
-
-    return z;
+    
+    float r = std::sqrt(z.x*z.x + z.y*z.y + z.z*z.z);
+    return r / std::abs(dr);
 }
 
-// Генерация Mandelbox в воксельной сетке
+// ==================== Генерация Mandelbox ====================
 void generateMandelbox(VoxelWorld& world) {
-    std::cout << "Generating Mandelbulb fractal...\n";
+    std::cout << "Generating Mandelbox fractal...\n";
     auto start = std::chrono::high_resolution_clock::now();
-
+    
     const int SIZE = world.sizeX;
-    const float scale = 2.5f;
+    const float scale = 2.0f;  // Масштаб для Mandelbox
     const float offset = SIZE / 2.0f;
-
+    
+    int filled = 0;
+    
     for (int x = 0; x < SIZE; x++) {
         for (int y = 0; y < SIZE; y++) {
             for (int z = 0; z < SIZE; z++) {
-                // Маппинг воксельных координат в пространство фрактала [-1.5, 1.5]
-                float fx = (x - offset) / (SIZE / scale);
-                float fy = (y - offset) / (SIZE / scale);
-                float fz = (z - offset) / (SIZE / scale);
-
-                float de = mandelboxDE(Vec3(fx, fy, fz), 6);
-
+                // Маппинг воксельных координат в пространство фрактала [-2.0, 2.0]
+                float fx = (x - offset) / (SIZE / (scale * 2.0f));
+                float fy = (y - offset) / (SIZE / (scale * 2.0f));
+                float fz = (z - offset) / (SIZE / (scale * 2.0f));
+                
+                float de = mandelboxDE(Vec3(fx, fy, fz), 8);
+                
                 if (de < 0.01f) {
-                    world.at(x, y, z) = 1;
+                    world.at(x, y, z) = 2;  // Тип 2 для Mandelbox
+                    filled++;
                 }
             }
         }
         if (x % 32 == 0) {
-            std::cout << "  Slice " << x << "/" << SIZE << "\n";
+            auto now = std::chrono::high_resolution_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+            std::cout << "  Slice " << x << "/" << SIZE 
+                      << " (filled: " << filled << ", time: " << elapsed.count() << "s)\n";
         }
     }
-
+    
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout << "Spent " << duration.count() << " seconds\n";
+    std::cout << "Generated " << filled << " voxels in " << duration.count() << " seconds\n";
 }
+

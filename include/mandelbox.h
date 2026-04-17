@@ -1,5 +1,5 @@
-#ifndef MANDELBULB_H
-#define MANDELBULB_H
+#ifndef MANDELBOX_H
+#define MANDELBOX_H
 
 #include <iostream>
 #include <chrono>

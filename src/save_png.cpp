@@ -31,7 +31,7 @@ void save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget, Ve
             int idx = (py * WIDTH + px) * 3;
 
             if (traceDDA(world, ray, 1000.0f, hitPos, voxelType, normal)) {
-                Color baseColor = getFractalColor(hitPos.x, hitPos.y, hitPos.z, std::max(world.sizeX, std::max(world.sizeY, world.sizeZ)), 3.0f);
+                Color baseColor = getFractalColor(hitPos.x, hitPos.y, hitPos.z, world.sizeX, 6.0f);
                 Color finalColor = applyLighting(baseColor, normal);
 
                 image[idx + 0] = finalColor.r;
