@@ -13,6 +13,7 @@ void renderFractalMenu(VoxelWorld world, std::string filename){
     getstr(input);
     WIDTH = atoi(input);
     mvprintw(2, 0, "Enter height: ");
+    refresh();
     getstr(input);
     HEIGHT = atoi(input);
     
@@ -22,17 +23,17 @@ void renderFractalMenu(VoxelWorld world, std::string filename){
     refresh();
     getstr(input);
     int formatChoice = atoi(input);
-    noecho();
-
+    
     Vec3 camTarget(VOX_SIZE/2.0f, VOX_SIZE/2.0f, VOX_SIZE/2.0f);
     Vec3 up(0.0f, 1.0f, 0.0f);
     float fov = 60.0f * PI_CONST / 180.0f;
     
     bool success = false;
+    int infoLine = 5;
     
     if (formatChoice == 2) {
         // GIF format - animated camera circling around fractal
-        mvprintw(5, 0, "Enter number of frames (e.g., 30): ");
+        mvprintw(infoLine++, 0, "Enter number of frames (e.g., 30): ");
         refresh();
         getstr(input);
         int frames = atoi(input);
@@ -46,27 +47,28 @@ void renderFractalMenu(VoxelWorld world, std::string filename){
             filename += ".gif";
         }
         
-        Vec3 camPos(VOX_SIZE * 1.8f, VOX_SIZE * 1.2f, VOX_SIZE * 1.8f);
+        noecho();
         if(save_gif(WIDTH, HEIGHT, frames, camTarget, up, fov, world, filename)) {
-            mvprintw(7, 0, "GIF saved to %s!", filename.c_str());
+            mvprintw(infoLine++, 0, "GIF saved to %s!", filename.c_str());
             success = true;
         }
         else {
-            mvprintw(7, 0, "GIF save failed");
+            mvprintw(infoLine++, 0, "GIF save failed");
         }
     } else {
         // PNG format - static image
+        noecho();
         Vec3 camPos(VOX_SIZE * 1.8f, VOX_SIZE * 1.2f, VOX_SIZE * 1.8f);
         if(save_png(WIDTH, HEIGHT, camPos, camTarget, up, fov, world, filename)) {
-            mvprintw(5, 0, "Image saved to %s!", filename.c_str());
+            mvprintw(infoLine++, 0, "Image saved to %s!", filename.c_str());
             success = true;
         }
         else {
-            mvprintw(5, 0, "Image save failed");
+            mvprintw(infoLine++, 0, "Image save failed");
         }
     }
     
-    mvprintw(success ? 9 : 8, 0, "Press any key to continue...");
+    mvprintw(infoLine++, 0, "Press any key to continue...");
     refresh();
     getch();
     endwin();

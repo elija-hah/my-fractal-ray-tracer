@@ -11,7 +11,7 @@ bool save_gif(const int WIDTH, const int HEIGHT, int frames, Vec3 camTarget,
     // Create temporary directory for frames
     std::string tempDir = "/tmp/frac_frames";
     std::string mkdirCmd = "mkdir -p " + tempDir;
-    system(mkdirCmd.c_str());
+    (void)system(mkdirCmd.c_str());
     
     float radius = world.sizeX * 1.8f;
     float centerY = world.sizeY / 2.0f;
@@ -95,7 +95,7 @@ bool save_gif(const int WIDTH, const int HEIGHT, int frames, Vec3 camTarget,
     
     // Cleanup temporary files
     std::string cleanupCmd = "rm -rf " + tempDir;
-    system(cleanupCmd.c_str());
+    (void)system(cleanupCmd.c_str());
     
     return (result == 0);
 }
