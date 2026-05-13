@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include "save_png.h"
+#include "save_gif.h"
 #include "struct.h"
 
 void renderFractalMenu(VoxelWorld world, std::string filename);

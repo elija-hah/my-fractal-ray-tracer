@@ -27,7 +27,7 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
     };
 
     auto lerp = [](unsigned char a, unsigned char b, float t) {
-        return static_cast<unsigned char>(a + (b - a) * t);
+        return static_cast<unsigned char>(static_cast<float>(a) + (static_cast<float>(b) - static_cast<float>(a)) * t);
     };
 
     // Интерполяция по X (внутри каждого слоя и строки)
