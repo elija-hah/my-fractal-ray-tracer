@@ -3,7 +3,7 @@
 float mandelboxDE(const Vec3& pos, int maxIter) {
     Vec3 z = pos;
     float dr = 1.0f;
-    const float scale = 2.5f;        // Увеличил для более интересной формы
+    const float scale = 2.5f;
     const float fixedRadius = 1.0f;
     const float minRadius = 0.5f;
     
@@ -18,7 +18,6 @@ float mandelboxDE(const Vec3& pos, int maxIter) {
         if (z.z > 1.0f) z.z = 2.0f - z.z;
         else if (z.z < -1.0f) z.z = -2.0f - z.z;
         
-        // Ball Fold
         float r2 = z.x*z.x + z.y*z.y + z.z*z.z;
         if (r2 < minRadius * minRadius) {
             float factor = fixedRadius / minRadius;
@@ -34,14 +33,12 @@ float mandelboxDE(const Vec3& pos, int maxIter) {
             dr *= factor;
         }
         
-        // Масштабирование и добавление константы
         z.x = z.x * scale + pos.x;
         z.y = z.y * scale + pos.y;
         z.z = z.z * scale + pos.z;
         
         dr = dr * std::abs(scale) + 1.0f;
         
-        // Ранний выход
         if (z.x*z.x + z.y*z.y + z.z*z.z > 100.0f) break;
     }
     
@@ -68,7 +65,6 @@ void generateMandelbox(VoxelWorld& world) {
         
         for (int y = 0; y < SIZE; y++) {
             for (int z = 0; z < SIZE; z++) {
-                // Маппинг в пространство [-2.5, 2.5]
                 float fx = (x - offset) / (SIZE / (scale * 2.0f));
                 float fy = (y - offset) / (SIZE / (scale * 2.0f));
                 float fz = (z - offset) / (SIZE / (scale * 2.0f));

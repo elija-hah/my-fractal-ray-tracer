@@ -54,9 +54,12 @@ public:
     
     void finish(const std::string& message) {
         mvwprintw(win, 5, 2, "%-40s", message.c_str());
-        mvwprintw(win, 8, 2, "Press any key to continue...");
+        
+        // Небольшая задержка (400 мс), чтобы глаз успел зафиксировать 100%
+        // getch(); <-- УДАЛЕНО, теперь Enter не требуется
+        napms(400); 
+        
         wrefresh(win);
-        getch();
         delwin(win);
         clear();
         refresh();

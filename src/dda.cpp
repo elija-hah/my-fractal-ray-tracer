@@ -17,29 +17,27 @@ bool intersectAABB(const Ray& ray, const Vec3& boxMin, const Vec3& boxMax, float
     return tNear <= tFar && tFar > 0;
 }
 
-// ==================== Трассировка с поддержкой внешней камеры ====================
+// ==================== Трассировка ====================
 bool traceDDA(const VoxelWorld& world, const Ray& ray, float maxDist, 
               Vec3& hitPos, unsigned char& voxelType, Vec3& normal) {
 
-    // Сначала проверяем пересечение с bounding box мира
+    // Пересечение с bounding box мира
     Vec3 boxMin(0, 0, 0);
     Vec3 boxMax(world.sizeX, world.sizeY, world.sizeZ);
     float tNear, tFar;
 
     if (!intersectAABB(ray, boxMin, boxMax, tNear, tFar)) {
-        return false;  // Луч не пересекает сцену
+        return false;
     }
 
     if (tNear > maxDist) return false;
 
-    // Начинаем от точки входа в bounding box
     Vec3 pos = ray.origin + ray.dir * std::max(0.0f, tNear);
 
     int x = static_cast<int>(std::floor(pos.x));
     int y = static_cast<int>(std::floor(pos.y));
     int z = static_cast<int>(std::floor(pos.z));
 
-    // Убеждаемся что мы внутри границ
     x = std::max(0, std::min(world.sizeX-1, x));
     y = std::max(0, std::min(world.sizeY-1, y));
     z = std::max(0, std::min(world.sizeZ-1, z));
