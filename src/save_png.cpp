@@ -39,6 +39,11 @@ bool save_png(const int WIDTH, const int HEIGHT, Vec3 camPos, Vec3 camTarget,
             int idx = (py * WIDTH + px) * 3;
 
             if (traceDDA(world, ray, 10000.0f, hitPos, voxelType, normal)) {
+		// Убеждаемся что внутри границ
+		float cx = std::max(0.5f, std::min(world.sizeX - 0.5f, cx));
+		float cy = std::max(0.5f, std::min(world.sizeY - 0.5f, cy));
+		float cz = std::max(0.5f, std::min(world.sizeZ - 0.5f, cz));
+            
                 Color baseColor = getFractalColor(hitPos.x, hitPos.y, hitPos.z, world.sizeX, 3.0f);
                 Color finalColor = applyLighting(baseColor, normal);
 

@@ -7,11 +7,6 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
     float ny = y / (float)(SIZE - 1);
     float nz = z / (float)(SIZE - 1);
 
-    // 2. Smoothstep для сглаживания цветовых переходов
-    float sx = nx * nx * (3.0f - 2.0f * nx);
-    float sy = ny * ny * (3.0f - 2.0f * ny);
-    float sz = nz * nz * (3.0f - 2.0f * nz);
-
     // Палитра углов куба
     Color colors[2][2][2] = {
         // z = 0 (ближний слой)
@@ -26,40 +21,40 @@ Color getFractalColor(float x, float y, float z, const int SIZE, const float sca
         }
     };
 
-    auto lerp = [](unsigned char a, unsigned char b, float t) {
-        return static_cast<unsigned char>(a + (b - a) * t);
+    auto lerp = [](float a, float b, float t) {
+        return a + (b - a)*t;
     };
 
     // Интерполяция по X (внутри каждого слоя и строки)
-    unsigned char r00 = lerp(colors[0][0][0].r, colors[0][0][1].r, sx);
-    unsigned char g00 = lerp(colors[0][0][0].g, colors[0][0][1].g, sx);
-    unsigned char b00 = lerp(colors[0][0][0].b, colors[0][0][1].b, sx);
+    float r00 = lerp(static_cast<float>(colors[0][0][0].r), static_cast<float>(colors[0][0][1].r), nx);
+    float g00 = lerp(static_cast<float>(colors[0][0][0].g), static_cast<float>(colors[0][0][1].g), nx);
+    float b00 = lerp(static_cast<float>(colors[0][0][0].b), static_cast<float>(colors[0][0][1].b), nx);
 
-    unsigned char r01 = lerp(colors[0][1][0].r, colors[0][1][1].r, sx);
-    unsigned char g01 = lerp(colors[0][1][0].g, colors[0][1][1].g, sx);
-    unsigned char b01 = lerp(colors[0][1][0].b, colors[0][1][1].b, sx);
+    float r01 = lerp(static_cast<float>(colors[0][1][0].r), static_cast<float>(colors[0][1][1].r), nx);
+    float g01 = lerp(static_cast<float>(colors[0][1][0].g), static_cast<float>(colors[0][1][1].g), nx);
+    float b01 = lerp(static_cast<float>(colors[0][1][0].b), static_cast<float>(colors[0][1][1].b), nx);
 
-    unsigned char r10 = lerp(colors[1][0][0].r, colors[1][0][1].r, sx);
-    unsigned char g10 = lerp(colors[1][0][0].g, colors[1][0][1].g, sx);
-    unsigned char b10 = lerp(colors[1][0][0].b, colors[1][0][1].b, sx);
+    float r10 = lerp(static_cast<float>(colors[1][0][0].r), static_cast<float>(colors[1][0][1].r), nx);
+    float g10 = lerp(static_cast<float>(colors[1][0][0].g), static_cast<float>(colors[1][0][1].g), nx);
+    float b10 = lerp(static_cast<float>(colors[1][0][0].b), static_cast<float>(colors[1][0][1].b), nx);
 
-    unsigned char r11 = lerp(colors[1][1][0].r, colors[1][1][1].r, sx);
-    unsigned char g11 = lerp(colors[1][1][0].g, colors[1][1][1].g, sx);
-    unsigned char b11 = lerp(colors[1][1][0].b, colors[1][1][1].b, sx);
+    float r11 = lerp(static_cast<float>(colors[1][1][0].r), static_cast<float>(colors[1][1][1].r), nx);
+    float g11 = lerp(static_cast<float>(colors[1][1][0].g), static_cast<float>(colors[1][1][1].g), nx);
+    float b11 = lerp(static_cast<float>(colors[1][1][0].b), static_cast<float>(colors[1][1][1].b), nx);
 
     // Интерполяция по Y
-    unsigned char r0 = lerp(r00, r01, sy);
-    unsigned char g0 = lerp(g00, g01, sy);
-    unsigned char b0 = lerp(b00, b01, sy);
+    float r0 = lerp(r00, r01, ny);
+    float g0 = lerp(g00, g01, ny);
+    float b0 = lerp(b00, b01, ny);
 
-    unsigned char r1 = lerp(r10, r11, sy);
-    unsigned char g1 = lerp(g10, g11, sy);
-    unsigned char b1 = lerp(b10, b11, sy);
+    float r1 = lerp(r10, r11, ny);
+    float g1 = lerp(g10, g11, ny);
+    float b1 = lerp(b10, b11, ny);
 
     // Интерполяция по Z (финальная)
-    unsigned char r = lerp(r0, r1, sz);
-    unsigned char g = lerp(g0, g1, sz);
-    unsigned char b = lerp(b0, b1, sz);
+    float r = lerp(r0, r1, nz);
+    float g = lerp(g0, g1, nz);
+    float b = lerp(b0, b1, nz);
 
-    return Color(r, g, b);
+    return Color(static_cast<unsigned char>(r), static_cast<unsigned char>(g), static_cast<unsigned char>(b));
 }
