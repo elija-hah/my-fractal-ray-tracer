@@ -61,6 +61,9 @@ bool traceDDA(const VoxelWorld& world, const Ray& ray, float maxDist,
 
     float t = tNear;
     int prevX = x, prevY = y, prevZ = z;
+    
+    // Флаг: был ли сделан хотя бы один шаг
+    bool stepped = false;
 
     while (t < tFar && t < maxDist) {
         if (!world.inBounds(x, y, z)) break;
@@ -69,14 +72,40 @@ bool traceDDA(const VoxelWorld& world, const Ray& ray, float maxDist,
             hitPos = pos + dir * (t - tNear);
             voxelType = world.at(x, y, z);
 
-            if (prevX != x) normal = Vec3(stepX > 0 ? -1.0f : 1.0f, 0, 0);
-            else if (prevY != y) normal = Vec3(0, stepY > 0 ? -1.0f : 1.0f, 0);
-            else if (prevZ != z) normal = Vec3(0, 0, stepZ > 0 ? -1.0f : 1.0f);
-            else normal = Vec3(0, 1, 0);
+            if (stepped) {
+                // Нормальный случай: были изменения координат
+                if (prevX != x) normal = Vec3(stepX > 0 ? -1.0f : 1.0f, 0, 0);
+                else if (prevY != y) normal = Vec3(0, stepY > 0 ? -1.0f : 1.0f, 0);
+                else normal = Vec3(0, 0, stepZ > 0 ? -1.0f : 1.0f);
+            } else {
+                // Граничный случай: попали сразу в воксель без шага
+                // Определяем нормаль по ближайшей грани AABB
+                float distToXMin = std::abs(pos.x - 0);
+                float distToXMax = std::abs(pos.x - world.sizeX);
+                float distToYMin = std::abs(pos.y - 0);
+                float distToYMax = std::abs(pos.y - world.sizeY);
+                float distToZMin = std::abs(pos.z - 0);
+                float distToZMax = std::abs(pos.z - world.sizeZ);
+                
+                float minDist = distToXMin;
+                normal = Vec3(-1, 0, 0);
+                
+                if (distToXMax < minDist) { minDist = distToXMax; normal = Vec3(1, 0, 0); }
+                if (distToYMin < minDist) { minDist = distToYMin; normal = Vec3(0, -1, 0); }
+                if (distToYMax < minDist) { minDist = distToYMax; normal = Vec3(0, 1, 0); }
+                if (distToZMin < minDist) { minDist = distToZMin; normal = Vec3(0, 0, -1); }
+                if (distToZMax < minDist) { minDist = distToZMax; normal = Vec3(0, 0, 1); }
+                
+                // Если мы глубоко внутри (не на границе), используем направление луча
+                if (minDist > 1.0f) {
+                    normal = Vec3(-dir.x, -dir.y, -dir.z).normalize();
+                }
+            }
             return true;
         }
 
         prevX = x; prevY = y; prevZ = z;
+        stepped = true;  // Был сделан шаг
 
         if (tMaxX < tMaxY) {
             if (tMaxX < tMaxZ) {

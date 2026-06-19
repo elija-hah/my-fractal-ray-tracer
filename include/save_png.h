@@ -5,7 +5,6 @@
 #include <chrono>
 #include <string.h>
 #include "struct.h"
-#include "frac_color.h"
 #include "dda.h"
 #include "light.h"
 #include "progress_ui.h"
